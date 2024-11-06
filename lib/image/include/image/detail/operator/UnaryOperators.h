@@ -95,7 +95,7 @@ struct LutOperator final {
 
     template <typename U>
     UTIL_ALWAYS_INLINE T apply(U a) const noexcept {
-        assert(a >= 0 && a < static_cast<int>(lutSize));
+        assert(a >= 0 && a < static_cast<unsigned int>(lutSize));
         return lut[a];
     }
 
