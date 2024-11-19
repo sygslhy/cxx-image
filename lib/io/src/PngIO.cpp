@@ -206,26 +206,26 @@ void PngWriter::writeImpl(const Image<T> &image) const {
         // Planar to interleaved conversion
         return writeImpl<T>(image::convertLayout(image, ImageLayout::INTERLEAVED));
     }
-
+    LOG_S(INFO) << "Png P1";
     std::ofstream stream(path(), std::ios::binary);
     if (!stream) {
         throw IOError("Cannot open file for writing: " + path());
     }
-
+    LOG_S(INFO) << "Png P2";
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     png_infop info = png_create_info_struct(png);
-
+    LOG_S(INFO) << "Png P3";
     // setjmp() must be called in every function that calls a PNG-writing libpng function
     if (setjmp(png_jmpbuf(png))) { // NOLINT(cert-err52-cpp)
         png_destroy_write_struct(&png, &info);
         throw IOError(MODULE, "Writing failed");
     }
-
+    LOG_S(INFO) << "Png P4";
     png_set_write_fn(png, static_cast<png_voidp>(&stream), pngWriteData, pngFlushData);
-
+    LOG_S(INFO) << "Png P5";
     // set the compression levels
     png_set_compression_level(png, 3);
-
+    LOG_S(INFO) << "Png P6";
     // set the image parameters appropriately
     png_set_IHDR(png,
                  info,
@@ -236,31 +236,33 @@ void PngWriter::writeImpl(const Image<T> &image) const {
                  PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT,
                  PNG_FILTER_TYPE_DEFAULT);
-
+    LOG_S(INFO) << "Png P7";
     // write all chunks up to (but not including) first IDAT
     png_write_info(png, info);
-
+    LOG_S(INFO) << "Png P8";
     // set up the transformations: for now, just pack low-bit-depth pixels into bytes (one, two or four pixels per byte)
     png_set_packing(png);
-
+    LOG_S(INFO) << "Png P9";
     // set up byte order in 16-bit depth files
     png_set_swap(png);
-
+    LOG_S(INFO) << "Png P10";
     // and now we just write the whole image; libpng takes care of interlacing for us
     const int64_t rowStride = image.layoutDescriptor().planes[0].rowStride;
     T *imageData = image.descriptor().buffers[0];
-
+    LOG_S(INFO) << "Png P11";
     std::vector<png_bytep> rowPointers(image.height());
     for (int y = 0; y < image.height(); ++y) {
         rowPointers[y] = reinterpret_cast<png_bytep>(imageData + y * rowStride);
     }
-
+    LOG_S(INFO) << "Png P12";
     png_write_image(png, rowPointers.data());
-
+    LOG_S(INFO) << "Png P13";
     // since that's it, we also close out the end of the PNG file now--if we had any text or time info to write after
     // the IDATs, second argument would be info_ptr, but we optimize slightly by sending NULL pointer:
     png_write_end(png, nullptr);
+    LOG_S(INFO) << "Png P14";
     png_destroy_write_struct(&png, &info);
+    LOG_S(INFO) << "Png P15";
 }
 
 } // namespace cxximg
