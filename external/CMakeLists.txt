@@ -5,6 +5,9 @@ include(FetchContent)
 set(LOGURU_STACKTRACES 0)
 set(LOGURU_WITH_STREAMS 1)
 
+# force loguru to build as shared library
+set(BUILD_SHARED_LIBS ON)
+
 FetchContent_Declare(
     loguru
     GIT_REPOSITORY "https://github.com/emmcb/loguru.git"
